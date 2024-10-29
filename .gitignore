@@ -1,0 +1,9 @@
+# Ignore the assets directory
+assets/
+__pycache__/
+.pytest_cache/
+
+# Ignore the log files
+test_run_log.txt
+test_run_log_20241029_131652.txt
+test_run_log_20241029_132000.txt
