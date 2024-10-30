@@ -1,0 +1,7 @@
+selenium>=4.0.0
+webdriver-manager>=3.0.0
+datetime
+random
+time
+logging
+Faker>=13.0.0
