@@ -19,6 +19,8 @@ from selenium.common.exceptions import NoSuchElementException
 import os
 import random
 import string
+import logging
+
 
 
 # Create a Faker instance with 'ar_QA' locale for Qatar-specific data
@@ -28,6 +30,10 @@ class HaiderPropertiesLogin:
     def __init__(self):
         # Initialize the Chrome driver
         self.driver = webdriver.Chrome()
+        
+    def log_action(self, action):
+        """Log each action to a text file."""
+        logging.info(action)
         
     def open_website(self, url):
         """Open the login page and maximize the window."""
@@ -162,7 +168,7 @@ class HaiderPropertiesLogin:
         # Select the randomly chosen option
         select.select_by_visible_text(random_choice.text)
         print(f"Selected property type: {random_choice.text}")
-        time.sleep(10)
+        time.sleep(7)
 
         # Wait for the property unit dropdown to be visible
         property_unit_dropdown = WebDriverWait(self.driver, 10).until(
@@ -196,23 +202,35 @@ class HaiderPropertiesLogin:
         parking_slot.send_keys(self.generate_parking_slot())
         time.sleep(1)
         car_plate_no = self.driver.find_element(By.XPATH, "//input[@ng-model='txtPlateno']")
-        car_plate_no.send_keys(self.generate_parking_slot())
+        car_plate_no.send_keys(self.generate_car_number_plate())
         time.sleep(1)
         
         fax = self.driver.find_element(By.XPATH, "//input[@name='Faxno']")
         fax.send_keys(self.generate_parking_slot())
-        time.sleep(1)
+        time.sleep(5)
         
         # Using the functions in your Selenium script
         contract_start = self.driver.find_element(By.XPATH, "//div[@class='col-sm-4 mb-3']//input[@id='txtSecRecDate']")
         future_date = self.generate_future_date()
         contract_start.send_keys(future_date)  # Sends the future start date
-        time.sleep(1)
+        time.sleep(5)
         
         contract_end = self.driver.find_element(By.XPATH, "//input[@name='ContractEndDate']")
         contract_end_date = self.generate_contract_end_date(future_date)  # Pass the future date to generate the end date
         contract_end.send_keys(contract_end_date)  # Sends the contract end date (12 months later)
-        time.sleep(1)
+        time.sleep(5)
+        
+        grace_period = self.driver.find_element(By.XPATH, "/html/body/div/div[1]/div/div/div/div[2]/div[1]/div/form/div[2]/div[18]/span/span[1]/span")
+        grace_period.click()
+        time.sleep(3)
+        
+        grace_period_option = self.driver.find_elements(By.XPATH, "//ul[contains(@class, 'select2-results__options')]/li")
+        if len(grace_period_option) > 1:
+                selected_option = random.choice(grace_period_option[1:])
+                grace_period = selected_option.text
+                selected_option.click()  # Click on the selected location option
+                self.log_action(f"Selected location: {grace_period}")  # Exclude the first option
+        time.sleep(3)
         
         due_date = self.driver.find_element(By.XPATH, "//span[@id='select2-ddlDueDay-container']")
         due_date.click()
@@ -221,8 +239,58 @@ class HaiderPropertiesLogin:
         if len(agent_options) > 1:
                 random.choice(agent_options[1:]).click()  # Avoid first option
         time.sleep(3)
-                    
-               
+        
+        if selected_type=="label[1]":
+            national_id = self.driver.find_element(By.XPATH, "//input[@name='QIDNumber']")
+            national_id.send_keys(self.generate_fake_tenant_id()) 
+            time.sleep(3)
+            national_id_date = self.driver.find_element(By.XPATH, "//input[@name='NExpiryDate']")
+            national_id_date.send_keys(self.generate_future_date())  # Pass the future date to generate the end date
+            # commercial_reg_no_date.send_keys(commercial_reg_no_date)  # Sends the contract end date (12 months later)
+            time.sleep(3)
+            
+        
+         # Pass the future date to generate the end date
+        commercial_reg_no = self.driver.find_element(By.XPATH, "//input[@name='CRNNumber']")
+        commercial_reg_no.send_keys(self.generate_fake_tenant_id()) 
+        time.sleep(3)
+        
+        
+        commercial_reg_no_date = self.driver.find_element(By.XPATH, "//input[@name='NCRNDate']")
+        commercial_reg_no_date.send_keys(self.generate_future_date())  # Pass the future date to generate the end date
+        # commercial_reg_no_date.send_keys(commercial_reg_no_date)  # Sends the contract end date (12 months later)
+        time.sleep(3)
+        
+        commercial_lic_no = self.driver.find_element(By.XPATH, "//input[@ng-model='commercailLCNO']")
+        commercial_lic_no.send_keys(self.generate_fake_tenant_id()) 
+        # commercial_lic_no.send_keys(commercial_lic_no)  # Sends the contract end date (12 months later)
+        time.sleep(3)
+        
+        
+        commercial_lic_no_date = self.driver.find_element(By.XPATH, "//input[@name='NCLicDate']")
+        commercial_lic_no_date.send_keys(self.generate_future_date())  # Pass the future date to generate the end date
+        # commercial_lic_no_date.send_keys(commercial_lic_no_date)  # Sends the contract end date (12 months later)
+        time.sleep(3)
+        
+        establishment_no = self.driver.find_element(By.XPATH, "//input[@ng-model='EstablNO']")
+        establishment_no.send_keys(self.generate_fake_tenant_id()) 
+        # establishment_no.send_keys(establishment_no)  # Sends the contract end date (12 months later)
+        time.sleep(3)
+        
+        
+        establishment_no_date = self.driver.find_element(By.XPATH, "//input[@name='EstablDate']")
+        establishment_no_date.send_keys(self.generate_future_date())  # Pass the future date to generate the end date
+        # establishment_no_date.send_keys(establishment_no_date)  # Sends the contract end date (12 months later)
+        time.sleep(3)
+        
+        select_type_pass = self.driver.find_element(By.XPATH, "//span[@id='select2-IdentificationType-3c-container']")
+        select_type_pass.click()
+        time.sleep(3)
+        select_type_pass_options = self.driver.find_elements(By.XPATH, "//ul[@id='select2-IdentificationType-3c-results']/li")
+        if len(select_type_pass_options) > 1:
+                random.choice(select_type_pass_options[1:]).click()  # Avoid first option
+        time.sleep(3)
+          
         
     def generate_qatari_phone_number(self):
         """Generate a random Qatari phone number (e.g., starting with +974)."""
@@ -292,6 +360,6 @@ if __name__ == "__main__":
     # time.sleep(10)
     login.add_tenant()
     
-
+    
     # Close the browser
     login.close_browser()
